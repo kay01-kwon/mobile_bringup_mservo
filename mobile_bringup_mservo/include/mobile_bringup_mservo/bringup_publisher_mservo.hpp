@@ -82,8 +82,8 @@ class encoder_attitude{
     const double l_2 = 0.191;
 
     // Wheel info
-    const double l_sep_x = 0.140;
-    const double l_sep_y = 0.33225;
+    const double l_sep_x = 0.43346;
+    const double l_sep_y = 0.32902;
     const double wheel_radious = 0.076;
 
     // data conversion info

@@ -30,3 +30,6 @@ include_directories(
 
 add_executable(bringup_publisher_mservo src/bringup_publisher_mservo.cpp)
 target_link_libraries(bringup_publisher_mservo ${catkin_LIBRARIES})
+
+add_executable(odom_publisher_mservo src/odom_publisher_mservo.cpp)
+target_link_libraries(odom_publisher_mservo ${catkin_LIBRARIES})
