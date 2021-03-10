@@ -28,8 +28,6 @@ using Eigen::Vector4d;
 using Eigen::MatrixXd;
 using Eigen::Quaterniond;
 
-tf::TransformBroadcaster broadcaster;
-tf::StampedTransform transform;
 
 class OdomPublisher{
     
@@ -41,8 +39,22 @@ class OdomPublisher{
     void subscriber_set();
     void calculate_velocity_position();
     void velocity_pose_publish();
-    void broad_cast_transform();
     MatrixXd getRotMat(double angle);
+
+    double yaw = 0;
+
+    Vector4d measure_val;
+    MatrixXd Jacob = MatrixXd(3,4);
+
+    Vector3d v_robot;    
+
+    Vector3d v_est;
+    Vector3d p_est_curr;
+    Vector3d p_est_prev;
+
+    Quaterniond q_cam = Quaterniond::Identity();
+    Quaterniond q_est = Quaterniond::Identity();
+    Quaterniond q_init = Quaterniond::Identity();
 
     private:
     
@@ -67,21 +79,6 @@ class OdomPublisher{
     // Motor spec and unit conversion ratio
     const double gear_ratio = 74.5;
     const double rpm_to_radps = 2.0*M_PI/60.0;
-
-    double yaw = 0;
-
-    Vector4d measure_val;
-    MatrixXd Jacob = MatrixXd(3,4);
-
-    Vector3d v_robot;    
-
-    Vector3d v_est;
-    Vector3d p_est_curr;
-    Vector3d p_est_prev;
-
-    Quaterniond q_cam = Quaterniond::Identity();
-    Quaterniond q_est = Quaterniond::Identity();
-    Quaterniond q_init = Quaterniond::Identity();
 
 };
 
@@ -122,7 +119,6 @@ void OdomPublisher::callback_camera(const Odometry::ConstPtr& camera_msg)
    yaw = atan2(2*(qw*qz + qx*qy),1-2*(qy*qy+qz*qz));
     calculate_velocity_position();
     velocity_pose_publish();
-    broad_cast_transform();
 }
 
 void OdomPublisher::callback_enc(const vel::ConstPtr& enc_msg)
@@ -203,19 +199,6 @@ void OdomPublisher::velocity_pose_publish()
 
     publisher_odom.publish(odom);    
     publisher_twist.publish(vel);
-}
-
-void OdomPublisher::broad_cast_transform()
-{
-
-    broadcaster.sendTransform(
-        tf::StampedTransform(
-    	tf::Transform(tf::Quaternion(cos(yaw/2),0,0,sin(yaw/2)), 
-        tf::Vector3(p_est_curr(0),p_est_curr(1),0)),
-    	ros::Time::now(),"odom", "base_footprint"
-        )
-      );
-
 }
 
 MatrixXd OdomPublisher::getRotMat(double angle)
