@@ -189,6 +189,8 @@ void OdomPublisher::velocity_pose_publish()
       odom.twist.covariance[35] = 0.01;
     }
     publisher_odom.publish(odom);
+
+    t_prev = t_curr;
 }
 
 MatrixXd OdomPublisher::getRotMat(double angle)
