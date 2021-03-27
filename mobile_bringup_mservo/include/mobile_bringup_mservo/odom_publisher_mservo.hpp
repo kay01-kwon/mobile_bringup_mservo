@@ -7,7 +7,6 @@
 #include <ethercat_test/vel.h>
 #include <dualarm_sensor_msgs/as5047Msg.h>
 #include <nav_msgs/Odometry.h>
-#include <geometry_msgs/Twist.h>
 
 #include <std_msgs/Time.h>
 #include <tf/transform_broadcaster.h>
@@ -21,7 +20,6 @@
 using ethercat_test::vel;
 using dualarm_sensor_msgs::as5047Msg;
 using nav_msgs::Odometry;
-using geometry_msgs::Twist;
 
 using Eigen::Vector3d;
 using Eigen::Vector4d;
@@ -61,7 +59,6 @@ class OdomPublisher{
     // ROS
     ros::NodeHandle nh_;
     ros::Publisher publisher_odom;
-    ros::Publisher publisher_twist;
     ros::Subscriber subscriber_camera;
     ros::Subscriber subscriber_encoder;
 
@@ -100,6 +97,7 @@ void OdomPublisher::initiate_variables()
 void OdomPublisher::publisher_set()
 {
     publisher_odom = nh_.advertise<Odometry>("odom",1);
+    
 }
 
 void OdomPublisher::callback_camera(const Odometry::ConstPtr& camera_msg)
@@ -149,7 +147,6 @@ void OdomPublisher::velocity_pose_publish()
     dt = t_curr - t_prev;
 
     Odometry odom;
-    Twist vel;
 
     odom.header.stamp = ros::Time::now();
     odom.header.frame_id = "odom";
@@ -167,10 +164,6 @@ void OdomPublisher::velocity_pose_publish()
     odom.twist.twist.linear.x = v_robot(0);
     odom.twist.twist.linear.y = v_robot(1);
     odom.twist.twist.angular.z = v_robot(2);
-    
-    vel.linear.x = v_robot(0);
-    vel.linear.y = v_robot(1);
-    vel.angular.z = v_robot(2);
 
     odom.pose.covariance[0] = 0.01;
     odom.pose.covariance[7] = 0.01;
@@ -195,17 +188,14 @@ void OdomPublisher::velocity_pose_publish()
     }else{
       odom.twist.covariance[35] = 0.01;
     }
-
-
-    publisher_odom.publish(odom);    
-    publisher_twist.publish(vel);
+    publisher_odom.publish(odom);
 }
 
 MatrixXd OdomPublisher::getRotMat(double angle)
 {
     MatrixXd R = MatrixXd(3,3);
     R << cos(angle), -sin(angle), 0,
-        sin(angle), sin(angle), 0,
+        sin(angle), cos(angle), 0,
         0,  0,  1;
 
     return R;
