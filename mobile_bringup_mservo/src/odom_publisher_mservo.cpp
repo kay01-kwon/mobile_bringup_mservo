@@ -4,7 +4,8 @@
 int main(int argc, char **argv)
 {
 
-    std::cout<<"Start\n";
+    std::cout<<"\n";
+    std::cout<<"Odometry publisher\n";
     ros::init(argc,argv,"odom_mservo");
     
     OdomPublisher odom_publisher;
@@ -23,11 +24,9 @@ int main(int argc, char **argv)
 
         broadcaster.sendTransform(
         tf::StampedTransform(
-    	tf::Transform(tf::Quaternion(cos(odom_publisher.yaw/2),0,0,sin(odom_publisher.yaw/2)), 
+    	tf::Transform(tf::Quaternion(0,0,sin(odom_publisher.yaw/2),cos(odom_publisher.yaw/2)), 
         tf::Vector3(odom_publisher.p_est_curr(0),odom_publisher.p_est_curr(1),0)),
-    	ros::Time::now(),"odom", "base_footprint"
-        )
-      );
+    	ros::Time::now(),"odom", "base_footprint"));
         ros::spinOnce();
         loop_rate.sleep();
     }
