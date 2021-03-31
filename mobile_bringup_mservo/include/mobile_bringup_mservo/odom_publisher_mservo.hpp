@@ -188,8 +188,9 @@ void OdomPublisher::velocity_pose_publish()
     }else{
       odom.twist.covariance[35] = 0.01;
     }
-    publisher_odom.publish(odom);
 
+    std::cout<<p_est_curr(0)<<std::endl;
+    publisher_odom.publish(odom);
     t_prev = t_curr;
 }
 
